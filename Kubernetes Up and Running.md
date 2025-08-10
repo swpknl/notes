@@ -35,6 +35,7 @@ kubectl delete pods/podName # Delete the pod
 kubectl describe pods podName # Describe the pod in detail
 ```
 
+Create pod:
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -49,3 +50,4 @@ spec:
 				name: http
 				protocol: TCP
 ```
+
