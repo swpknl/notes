@@ -44,16 +44,25 @@ Pod
 - To scale down, delete existing pod
 - A single pod can have multiple container, but they are not of the same kind
 
-kubectl
-- kubectl run nginx --image nginx
-	- Image is downloaded from Docker hub. Image is name in dockerhub and name here is nginix
+kubectl	
+```bash
+kubectl run nginx --image nginx
+```
+
+- Image is downloaded from Docker hub. Image is name in dockerhub and name here is nginix
 - Create a pod in a node with the nginx image
-- kubectl get pods
-	- Shows the list of pods in a cluster
-- kubectl describe pod nginx
-	- provides more detailed info than get pods
-- kubectl get pods -o wide (additional options)
-	- Gives a fairly detailed info on pods
+```bash
+kubectl get pods
+```
+- Shows the list of pods in a cluster
+```bash
+kubectl describe pod nginx
+```
+- provides more detailed info than get pods
+```bash
+kubectl get pods -o wide #(additional options)
+```
+- Gives a fairly detailed info on pods
 
 Pods using yaml:
 - Kubernetes yaml file always contains 4 top level/root level required fields in its yaml file:
@@ -62,16 +71,30 @@ Pods using yaml:
 	- metadata: Data about the object, like name, label. It is a dictionary
 	- spec: Provide additional information about the object being created. It is a dictionary
 - Pods can have multiple containers in it
-Command to use yml file: kubectl create -f pod-definition.yml
-Apply an edit command after applying: kubectl apply -f pod-definition.yaml
+Command to use yml file: 
+```bash
+kubectl create -f pod-definition.yml
+```
+Apply an edit command after applying: 
+```bash
+kubectl apply -f pod-definition.yaml
+```
 Use the command to get information about a pod:
+```bash
 kubectl get pods
+```
 To get a detailed view of a pod, use:
+```bash
 kubectl describe pod myapp-pod
+```
 To create a pod using command line (without file), use:
+```bash
 kubectl run my-pod --image=nginx
+```
 View all pods in detail:
+```bash
 kubectl get pods -o wide
+```
 
 Replication controller
 Replication controller helps in running multiple instances of a single pod in a node
@@ -80,28 +103,28 @@ It spans across multiple nodes across the cluster
 It helps balance the load across multiple pods across nodes
 
 RelplicaSet
-Both have the same purpose, but ReplicationCOntroller is the old technology, and is replaced by ReplicaSet
+Both have the same purpose, but ReplicationController is the old technology, and is replaced by ReplicaSet
 
 rc-definition.yml -> this is for ReplicaController
-- apiVersion: v1
-- kind: ReplicationController
-- metadata: 
+```yaml
+apiVersion: v1
+kind: ReplicationController
+metadata: 
 	- name: myapp-rc
 	- labels:
 		- app: my-app
 		- type: front-end
-- spec: - this is the most important section, it defines what is inside the object that it is creating
-	- template: - Provide a pod template to create replicas
-- spec:
-	- template:
-		- metadata:
-			- name: myapp-pod
-			- type: front-end
-		- spec:
-			- containers:
-				- name: ngnix-container
-				- image: nginx
-	- replicas: 3 <- same level as template
+- spec: # this is the most important section, it defines what is inside the object that it is creating
+	template: # Provide a pod template to create replicas
+		metadata:
+			name: myapp-pod
+			type: front-end
+		spec:
+			containers:
+				name: ngnix-container
+				image: nginx
+	replicas: 3 # same level as template
+```
 
 
 re-definition.yml => this is for ReplicateSet
@@ -120,39 +143,53 @@ How does it identify which pod to control across various pods:
 Using labels
 Scaling replicasets:
 - We can update the number of replicas in the yaml definition file
-	- kubectl create -f defintion.yml
-- kubectl scale --replicas=6 -f definition-file.yml
-	- This will not be updated in the file
-- kubectl scale --replicas=6 replicaset myapp-replicaset
+```bash
+kubectl create -f defintion.yml
+```
+
+```bash
+kubectl scale --replicas=6 -f definition-file.yml
+```
+- This will not be updated in the file
+```bash
+kubectl scale --replicas=6 replicaset myapp-replicaset
+```
 
 We can also expand replicas based on load
 We can also edit the replicaset using the following command:
-kubectl edit replicateset <name-of-replicateset>
+kubectl edit replicateset name-of-replicateset
 
 It opens up in vim, which is the running configuration, and not the actual file which was created. It is a temporary file created by K8s and has other details
 
 Scale replicas:
-kubectl scale replicaset <app-name> --replicas=2
+```bash
+kubectl scale replicaset app-name --replicas=2
+```
 
 Delete pod:
-kubectl delete pod <pod-name>
+```bash
+kubectl delete pod pod-name
+```
 
 Explain syntax:
+```bash
 kubectl explain replicaset
+```
 
 Deployments:
 Handles deployments for K8s
-kubectl create -f <filename.yaml>
-
+```bash
+kubectl create -f filename.yaml
 kubectl get deployments
 kubectl get all 
+```
 
 Rollout and versioning:
 When first deployment triggers a rollout. A new rollout creates a revision
 In the future when the application is upgraded, a new rollout is created, which triggers a new revision
 this allows us to upgrade/downgrade as required
 
-kubectl rollout history <deployment-name>
+kubectl rollout history deployment-name
 
 Deployment strategy:
 - Destroy current instances and then deploy new versions
@@ -163,28 +200,40 @@ Deployment strategy:
 	- this is called as rolling update and is the default deployment strategy
 
 Edit the file and apply the changes
-- kubectl apply -f <file_name>
+```bash
+kubectl apply -f file_name
+```
 
 Another way is to:
-kubectl set image <deployment-name> <image version>
+```bash
+kubectl set image deployment-name image version
+```
 This does not update the definition file, so must be used carefully
 
 Edit inline:
-kubectl edit deployment frontend
-	Notes: this will open vim
+```bash
+kubectl edit deployment frontend # Notes: this will open vim
+```
 
 Rollback:
-kubectl rollout undo <deployment-name>
+```bash
+kubectl rollout undo deployment-name
+```
 
 Rollout status:
-kubectl rollout status <deployment-name>
+```bash
+kubectl rollout status deployment-name
+```
 
 Rollout history:
-kubectl rollout history <deployment-name>
+```bash
+kubectl rollout history deployment-name
+```
 
 Add record to record changes
-kubectl create -f deployment-definition.yml --record
-this records the change-cause in the kubectl rollout 
+```bash
+kubectl create -f deployment-definition.yml --record # This records the change-cause in the kubectl rollout 
+```
 
 If for some reason there is a mistake in the definition.yml file, like wrong image name etc, and when we try to deploy this deployment, K8s will proactively stop terminating the old pods if when starting the new pods we get an error.
 
@@ -211,19 +260,22 @@ Kubernetes Services:
 			- Port on the node, known as Node port
 				- The port range is from 30000 to 32767
 	- Spec file for Node port:
-		- apiVersion: v1
-		- kind: Service
-		- metadata:
-			- name: node-port
-		- spec:
-			- type: NodePort
-			- ports:
-				- targetPort: 80
-				  port: 80
-				  nodePort: 30008
-			- selector: <- list of labels to identify the pod, it'll select all pods matching the selector. Works with distributed nodes. A service is created that spans multiple nodes across clusters and the config is created for each pod in the node
-				- app: app-type
-				- type: front-end
+``` yaml
+apiVersion: v1
+kind: Service
+metadata:
+	name: node-port
+spec:
+	type: NodePort
+	ports:
+		- targetPort: 80
+		  port: 80
+		  nodePort: 30008
+	- selector: # list of labels to identify the pod, it'll select all pods matching the selector. Works with distributed nodes. A service is created that spans multiple nodes across clusters and the config is created for each pod in the node
+		app: app-type
+		type: front-end	 
+```
+
 - port is manadatory
 - if targetport is not given, then the value is that of port
 - if nodePort is not given, then the value is given as any free port available
@@ -242,9 +294,11 @@ LoadBalancer:
 Docker run linking:
 - Use the --name option to name a container
 - This name is then used to link containers together
-	- docker run -d --name=vote -p 5000:80 --link redis:redis voting-app
-	- --link follows hostName:containerName format
-	- This creates an entry in the etc/hosts file with the internal IP of the linked container
+```bash
+docker run -d --name=vote -p 5000:80 --link redis:redis voting-app
+```
+- --link follows hostName:containerName format
+- This creates an entry in the etc/hosts file with the internal IP of the linked container
 
 
 Same setup in K8s:
@@ -255,5 +309,3 @@ Same setup in K8s:
 - Create services (NodePort)
 	- voting-app
 	- result-app
-
-
